@@ -20,3 +20,119 @@ export const create = async (req, res) => {
         })
     }
 }
+
+export const getAll = async (req, res) => {
+    try {
+        const posts = await PostModel.find().populate('user').exec()
+
+        const clearPosts = posts.map(post => {
+            const {passwordHash, ...userData} = post.user._doc
+            return {
+                ...post._doc,
+                user: userData
+            }
+        })
+
+        res.json(clearPosts)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: 'Posts not found'
+        })
+    }
+}
+
+export const getOne = async (req, res) => {
+    try {
+        const postId = req.params.id
+
+        PostModel.findOneAndUpdate(
+            {
+                _id: postId
+            },
+            {
+                $inc: { viewsCount: 1 }
+            },
+            {
+                returnDocument: 'after'
+            },
+            (err, doc) => {
+                if (err) {
+                    console.log(err)
+                    res.status(500).json({
+                        message: 'Post not found'
+                    })
+                }
+                if (!doc) {
+                    return res.status(404).json({
+                        message: 'Post not found'
+                    })
+                }
+
+                res.json(doc)
+            })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: 'Post not found'
+        })
+    }
+}
+
+export const remove = async (req, res) => {
+    try {
+        const postId = req.params.id
+
+        PostModel.findOneAndDelete({
+            _id: postId
+        }, (err, doc) => {
+            if (err) {
+                console.log(err)
+                res.status(500).json({
+                    message: 'Cannot delete post'
+                })
+            }
+            if (!doc) {
+                console.log(err)
+                res.status(500).json({
+                    message: 'Post not found'
+                })
+            }
+
+            res.json({
+                success: true
+            })
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: 'Post not found'
+        })
+    }
+}
+
+export const update = async (req, res) => {
+    try {
+        const postId = req.params.id
+
+        await PostModel.updateOne({
+                _id: postId
+            },
+            {
+                title: req.body.title,
+                text: req.body.text,
+                imageUrl: req.body.imageUrl,
+                tags: req.body.tags,
+                user: req.userId
+            })
+
+        res.json({
+            success: true
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: 'Failed to update'
+        })
+    }
+}

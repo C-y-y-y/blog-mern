@@ -14,7 +14,7 @@ export const loginValid = [
 
 export const postCreateValid = [
     body('title', 'Set article title').isLength({ min: 3}).isString(),
-    body('text', 'Set article text').isLength({ min: 10 }).isString(),
-    body('tags', 'Wrong tags').optional().isString(),
+    body('text', 'Set article text').isLength({ min: 3 }).isString(),
+    body('tags', 'Wrong tags').optional().isArray(),
     body('imageUrl', 'Wrong url').optional().isString(),
 ]
