@@ -1,12 +1,11 @@
 import express from 'express';
 import mongoose from "mongoose";
 import multer from 'multer';
+import cors from 'cors';
 
-import {registrationValid, loginValid, postCreateValid} from "./validations.js";
-import checkAuth from './utils/checkAuth.js'
-import * as UserController from './controllers/UserController.js'
-import * as PostController from './controllers/PostController.js'
-import {update} from "./controllers/PostController.js";
+import { registrationValid, loginValid, postCreateValid } from "./validations.js";
+import { UserController, PostController } from './controllers/index.js';
+import { checkAuth, validationErrors } from './utils/index.js';
 
 mongoose
     .connect('mongodb+srv://Cyy:Merntest123@cluster0.sqqixkc.mongodb.net/blog?retryWrites=true&w=majority')
@@ -27,9 +26,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 app.use(express.json())
-
-app.post('/auth/login', loginValid, UserController.login)
-app.post('/auth/registration', registrationValid, UserController.registration)
+app.use(cors())
+app.post('/auth/login', loginValid, validationErrors, UserController.login)
+app.post('/auth/registration', registrationValid, validationErrors, UserController.registration)
 app.post('/auth/profile', checkAuth, UserController.getProfile)
 
 app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
@@ -37,12 +36,13 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
         url: `/uploads/${req.file.originalname}`
     })
 })
+app.use('/uploads', express.static('uploads'))
 
 app.get('/posts', PostController.getAll)
 app.get('/posts/:id', PostController.getOne)
-app.post('/posts', checkAuth, postCreateValid, PostController.create)
+app.post('/posts', checkAuth, postCreateValid, validationErrors, PostController.create)
 app.delete('/posts/:id', checkAuth, PostController.remove)
-app.patch('/posts/:id', checkAuth, PostController.update)
+app.patch('/posts/:id', checkAuth, postCreateValid, validationErrors, PostController.update)
 
 
 app.listen(4000, (err) => {
