@@ -27,9 +27,10 @@ const upload = multer({ storage })
 
 app.use(express.json())
 app.use(cors())
+
 app.post('/auth/login', loginValid, validationErrors, UserController.login)
 app.post('/auth/registration', registrationValid, validationErrors, UserController.registration)
-app.post('/auth/profile', checkAuth, UserController.getProfile)
+app.get('/auth/profile', checkAuth, UserController.getProfile)
 
 app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
     res.json({
@@ -39,6 +40,7 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
 app.use('/uploads', express.static('uploads'))
 
 app.get('/posts', PostController.getAll)
+app.get('/posts/tags', PostController.getLastTags)
 app.get('/posts/:id', PostController.getOne)
 app.post('/posts', checkAuth, postCreateValid, validationErrors, PostController.create)
 app.delete('/posts/:id', checkAuth, PostController.remove)
