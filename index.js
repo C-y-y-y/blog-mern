@@ -16,14 +16,15 @@ mongoose
 const app = express();
 
 const storage = multer.diskStorage({
-    destination: (_, __, cb) => {
+    destination: (req, file, cb) => {
         if (!fs.existsSync('data-images')) {
             fs.mkdirSync('data-images')
         }
         cb(null, 'data-images')
     },
-    filename: (_, file, cb) => {
+    filename: (req, file, cb) => {
         cb(null, file.originalname)
+        cb(null, `${(new Date()).toISOString()}-${file.originalname}`)
     },
 })
 
