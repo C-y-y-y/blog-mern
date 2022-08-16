@@ -56,6 +56,7 @@ export const getOne = async (req, res) => {
             {
                 returnDocument: 'after'
             },
+
             (err, doc) => {
                 if (err) {
                     console.log(err)
