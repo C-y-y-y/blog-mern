@@ -17,10 +17,10 @@ const app = express();
 
 const storage = multer.diskStorage({
     destination: (_, __, cb) => {
-        if (!fs.existsSync('uploads')) {
-            fs.mkdirSync('uploads')
+        if (!fs.existsSync('data-images')) {
+            fs.mkdirSync('data-images')
         }
-        cb(null, 'uploads')
+        cb(null, 'data-images')
     },
     filename: (_, file, cb) => {
         cb(null, file.originalname)
